@@ -611,10 +611,11 @@ body{font-family:'DM Sans','Noto Sans JP',sans-serif;background:#f1f5f9;color:#1
             <input id="t1-month" type="text" value="2026年5月度" placeholder="2026年5月度" oninput="t1Refresh()">
           </div>
           <div class="field">
-            <label>来店合計（自動）</label>
-            <input id="t1-total" type="text" readonly style="background:#f8fafc;color:#94a3b8;">
+            <label>キャンペーン適用開始月</label>
+            <input id="t1-start-month" type="text" placeholder="例: 2026年6月〜" oninput="t1Refresh()">
           </div>
         </div>
+
         <div class="form-row col2" style="margin-bottom:0;">
           <div class="field">
             <label>ランチ人数（16時以前）</label>
@@ -705,6 +706,7 @@ function t1Form() {
   return {
     storeName: document.getElementById('t1-storeName').value,
     month: document.getElementById('t1-month').value || '2026年5月度',
+    startMonthInput: document.getElementById('t1-start-month') ? document.getElementById('t1-start-month').value : '',
     lunch: document.getElementById('t1-lunch').value,
     dinner: document.getElementById('t1-dinner').value,
   };
@@ -718,7 +720,7 @@ function t1Refresh() {
   const c = t1CalcAll(f.lunch, f.dinner, plan.monthlyFee);
 
   // 来店合計
-  document.getElementById('t1-total').value = c.total ? `${t1Fmt(c.total)}名` : '';
+
 
   // プランカード
   document.getElementById('t1-plans').innerHTML = T1_PLANS.map(p => `
@@ -772,63 +774,63 @@ function t1BuildProposal() {
   const c = t1CalcAll(form.lunch, form.dinner, plan.monthlyFee);
   const { storeName, month } = form;
   const lunch = +form.lunch||0, dinner = +form.dinner||0;
-  const startMonth = t1NextMonth(month);
+  const startMonth = (form.startMonthInput && form.startMonthInput.trim()) ? form.startMonthInput.trim() : t1NextMonth(month);
   const point3 = c.total >= 150
     ? `予約母数が多いため削減効果が大きく、毎月最大${t1Fmt(c.diff1)}円のコスト削減が期待できます。`
     : c.diff4 > 0
     ? `キャンペーン期間中は毎月最大${t1Fmt(c.diff1)}円のコスト削減が見込めます。`
     : `前半3ヶ月で月${t1Fmt(c.diff1)}円削減でき、半年トータルでは${t1Fmt(c.savings)}円お得になります。`;
 
-  const cell = 'padding:6px 8px;text-align:center;color:#64748b;';
-  const saveBadge = val => `<span style="display:inline-block;background:#dbeafe;color:#2563eb;border:1px solid #93c5fd;font-size:8.5px;padding:1px 6px;border-radius:8px;margin-left:4px;font-weight:700;">毎月 ▲${t1Fmt(val)}円</span>`;
+  const cell = 'padding:9px 10px;text-align:center;color:#64748b;';
+  const saveBadge = val => `<span style="display:inline-block;background:#dbeafe;color:#2563eb;border:1px solid #93c5fd;font-size:11px;padding:2px 8px;border-radius:8px;margin-left:4px;font-weight:700;">毎月 ▲${t1Fmt(val)}円</span>`;
 
   const row46 = c.diff4 > 0
-    ? `<td style="${cell}font-weight:700;color:#2563eb;">${t1Fmt(c.m4)}円 ${saveBadge(c.diff4)}</td>`
-    : `<td style="${cell}font-weight:700;color:#64748b;">${t1Fmt(c.m4)}円<br><span style="font-size:7.5px;color:#94a3b8;font-style:italic;">※固定費（${t1Fmt(plan.monthlyFee)}円）込み。半年トータルでは削減になります。</span></td>`;
+    ? `<td style="${cell}font-weight:700;color:#2563eb;font-size:15px;">${t1Fmt(c.m4)}円 ${saveBadge(c.diff4)}</td>`
+    : `<td style="${cell}font-weight:700;color:#64748b;font-size:15px;">${t1Fmt(c.m4)}円<br><span style="font-size:7.5px;color:#94a3b8;font-style:italic;">※固定費（${t1Fmt(plan.monthlyFee)}円）込み。半年トータルでは削減になります。</span></td>`;
 
   const sumCards = [
     {label:"① 現状維持（6ヶ月合計）",     val:c.cur6,    dark:false, prefix:""},
     {label:"② キャンペーン適用（6ヶ月合計）", val:c.camp6,   dark:false, prefix:""},
     {label:"半年間の総削減額",            val:c.savings, dark:true,  prefix:"▲"},
   ].map(card => `
-    <div style="border:${card.dark?'2px solid #2563eb':'1px solid #e2e8f0'};border-radius:5px;padding:8px 10px;text-align:center;background:${card.dark?'linear-gradient(135deg,#1d4ed8,#3b82f6)':'white'};">
-      <div style="font-size:8.5px;color:${card.dark?'rgba(255,255,255,.65)':'#94a3b8'};margin-bottom:3px;">${card.label}</div>
-      <div style="font-size:${card.dark?'18px':'14px'};font-weight:900;color:${card.dark?'#fff':'#1e293b'};letter-spacing:-.02em;white-space:nowrap;">
-        ${card.prefix}${t1Fmt(card.val)}<span style="font-size:${card.dark?'12px':'10px'};font-weight:400;">円</span>
+    <div style="border:${card.dark?'2px solid #2563eb':'1px solid #e2e8f0'};border-radius:6px;padding:12px 10px;text-align:center;background:${card.dark?'linear-gradient(135deg,#1d4ed8,#3b82f6)':'white'};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;">
+      <div style="font-size:9px;font-weight:700;color:${card.dark?'rgba(255,255,255,.7)':'#94a3b8'};line-height:1.4;min-height:24px;display:flex;align-items:center;justify-content:center;">${card.label}</div>
+      <div style="font-size:22px;font-weight:900;color:${card.dark?'#fff':'#1e293b'};letter-spacing:-.02em;white-space:nowrap;line-height:1;">
+        ${card.prefix}${t1Fmt(card.val)}<span style="font-size:11px;font-weight:400;margin-left:1px;">円</span>
       </div>
-      <div style="font-size:8px;color:${card.dark?'rgba(255,255,255,.5)':'#94a3b8'};margin-top:2px;">${card.dark?'税別 ／ 試算ベース':'税別'}</div>
+      <div style="font-size:9px;color:${card.dark?'rgba(255,255,255,.55)':'#94a3b8'};">税別${card.dark?' ／ 試算ベース':''}</div>
     </div>`).join('');
 
   return `
-<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 16px 8px;border-bottom:1px solid #e2e8f0;flex-shrink:0;">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:11px 18px 9px;border-bottom:1px solid #e2e8f0;flex-shrink:0;">
   <div>
-    <div style="font-size:8px;letter-spacing:.12em;color:#94a3b8;text-transform:uppercase;margin-bottom:3px;">食べログ 営業提案書</div>
-    <div style="font-family:'Noto Serif JP',serif;font-size:15px;font-weight:700;margin-bottom:2px;">「超得キャンペーン」ご利用提案書</div>
-    <div style="font-size:8.5px;color:#94a3b8;">ネット予約従量料金の削減およびアクセスアップ機能導入のご案内</div>
+    <div style="font-size:9px;letter-spacing:.12em;color:#94a3b8;text-transform:uppercase;margin-bottom:4px;">食べログ 営業提案書</div>
+    <div style="font-family:'Noto Serif JP',serif;font-size:18px;font-weight:700;margin-bottom:3px;">「超得キャンペーン」ご利用提案書</div>
+    <div style="font-size:10px;color:#94a3b8;">ネット予約従量料金の削減およびアクセスアップ機能導入のご案内</div>
   </div>
   <div style="text-align:right;flex-shrink:0;margin-left:16px;white-space:nowrap;">
-    <div style="font-size:13px;font-weight:700;margin-bottom:2px;">${storeName} 様</div>
-    <div style="font-size:8.5px;color:#94a3b8;line-height:1.7;">実績月：${month}<br>キャンペーン適用開始：${startMonth}〜</div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:3px;">${storeName} 様</div>
+    <div style="font-size:10px;color:#94a3b8;line-height:1.7;">実績月：${month}<br>キャンペーン適用開始：${startMonth}〜</div>
   </div>
 </div>
 
-<div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;">
+<div style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;">
   <div>
-    <div style="font-size:8px;letter-spacing:.12em;color:rgba(255,255,255,.55);margin-bottom:4px;">COST REDUCTION</div>
-    <div style="font-size:10px;color:rgba(255,255,255,.9);white-space:nowrap;">半年間のコスト削減額</div>
+    <div style="font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.55);margin-bottom:5px;">COST REDUCTION</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.9);white-space:nowrap;">半年間のコスト削減額</div>
   </div>
   <div style="text-align:right;flex-shrink:0;">
-    <div style="font-size:8.5px;color:rgba(255,255,255,.65);margin-bottom:1px;">実質削減額（税別・試算）</div>
-    <div style="font-size:38px;font-weight:900;letter-spacing:-.04em;line-height:1;color:#fff;white-space:nowrap;"><span style="font-size:20px;">▲</span>${t1Fmt(c.savings)}<span style="font-size:16px;font-weight:500;margin-left:1px;">円</span></div>
-    <div style="font-size:8px;color:rgba(255,255,255,.5);margin-top:3px;white-space:nowrap;">現状維持（6ヶ月）${t1Fmt(c.cur6)}円 → 適用後 ${t1Fmt(c.camp6)}円</div>
+    <div style="font-size:10px;color:rgba(255,255,255,.65);margin-bottom:2px;">実質削減額（税別・試算）</div>
+    <div style="font-size:44px;font-weight:900;letter-spacing:-.04em;line-height:1;color:#fff;white-space:nowrap;"><span style="font-size:24px;">▲</span>${t1Fmt(c.savings)}<span style="font-size:18px;font-weight:500;margin-left:1px;">円</span></div>
+    <div style="font-size:9px;color:rgba(255,255,255,.5);margin-top:4px;white-space:nowrap;">現状維持（6ヶ月）${t1Fmt(c.cur6)}円 → 適用後 ${t1Fmt(c.camp6)}円</div>
   </div>
 </div>
 
-<div style="padding:6px 16px;font-size:9px;color:#475569;line-height:1.65;border-bottom:1px solid #e2e8f0;background:#f8faff;flex-shrink:0;">
+<div style="padding:5px 16px;font-size:9px;color:#475569;line-height:1.6;border-bottom:1px solid #e2e8f0;background:#f8faff;flex-shrink:0;">
   貴店の直近（${month}）のネット予約実績をもとに試算いたしました。本キャンペーンを適用して「${plan.name}」をご導入いただくことで、4ヶ月目から固定費が発生しても、<strong>半年間のトータルコストを大幅に引き下げること</strong>が可能です。
 </div>
 
-<div style="padding:8px 16px 0;flex:1;display:flex;flex-direction:column;gap:6px;background:#fff;">
+<div style="padding:6px 16px 0;flex:1;display:flex;flex-direction:column;gap:5px;background:#fff;">
   <div>
     <div style="font-size:10px;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
       <span style="background:#2563eb;color:white;width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">1</span>
@@ -845,9 +847,9 @@ function t1BuildProposal() {
       <colgroup><col style="width:23%"><col style="width:38.5%"><col style="width:38.5%"></colgroup>
       <thead>
         <tr>
-          <th style="padding:6px 8px;text-align:left;font-weight:600;font-size:9px;color:white;background:#334155;">項目</th>
-          <th style="padding:6px 8px;text-align:center;font-weight:600;font-size:9px;color:white;background:#64748b;">① 現状維持（プランなし）</th>
-          <th style="padding:6px 8px;text-align:center;font-weight:600;font-size:9px;color:white;background:#2563eb;">② キャンペーン適用（${plan.name}）</th>
+          <th style="padding:8px 10px;text-align:left;font-weight:600;font-size:10px;color:white;background:#334155;">項目</th>
+          <th style="padding:8px 10px;text-align:center;font-weight:600;font-size:10px;color:white;background:#64748b;">① 現状維持（プランなし）</th>
+          <th style="padding:8px 10px;text-align:center;font-weight:600;font-size:10px;color:white;background:#2563eb;">② キャンペーン適用（${plan.name}）</th>
         </tr>
       </thead>
       <tbody>
@@ -864,12 +866,12 @@ function t1BuildProposal() {
         <tr><td colspan="3" style="padding:4px 8px;background:#eff6ff;font-size:8.5px;color:#93c5fd;text-align:center;letter-spacing:.06em;">— 月額合計 —</td></tr>
         <tr style="border-bottom:1px solid #e2e8f0;background:#f8faff;">
           <td style="${cell}text-align:left;font-weight:700;background:#f1f5fb;color:#1e293b;">1〜3ヶ月目</td>
-          <td style="${cell}font-weight:700;color:#1e293b;">${t1Fmt(c.curM)}円</td>
-          <td style="${cell}font-weight:700;color:#2563eb;">${t1Fmt(c.m1)}円 ${saveBadge(c.diff1)}</td>
+          <td style="${cell}font-weight:700;color:#1e293b;font-size:15px;">${t1Fmt(c.curM)}円</td>
+          <td style="${cell}font-weight:700;color:#2563eb;font-size:15px;">${t1Fmt(c.m1)}円 ${saveBadge(c.diff1)}</td>
         </tr>
         <tr style="background:#f8faff;">
           <td style="${cell}text-align:left;font-weight:700;background:#f1f5fb;color:#1e293b;">4〜6ヶ月目</td>
-          <td style="${cell}font-weight:700;color:#1e293b;">${t1Fmt(c.curM)}円</td>
+          <td style="${cell}font-weight:700;color:#1e293b;font-size:15px;">${t1Fmt(c.curM)}円</td>
           ${row46}
         </tr>
       </tbody>
@@ -878,7 +880,7 @@ function t1BuildProposal() {
 
   <div>
     <div style="font-size:10px;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:4px;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
-      <span style="background:#2563eb;color:white;width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">2</span>
+      <span style="background:#2563eb;color:white;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">2</span>
       半年間トータルコスト比較
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:7px;">${sumCards}</div>
