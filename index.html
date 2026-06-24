@@ -884,7 +884,7 @@ function t1BuildProposal() {
     <div style="display:grid;grid-template-columns:1fr 1fr 1.1fr;gap:7px;">${sumCards}</div>
   </div>
 
-  <div style="border:1px solid #bfdbfe;border-top:2px solid #2563eb;border-radius:0 0 5px 5px;padding:8px 12px;flex:1;background:#f8faff;display:flex;flex-direction:column;justify-content:flex-start;">
+  <div id="t1-point-box" style="border:1px solid #bfdbfe;border-top:2px solid #2563eb;border-radius:0 0 5px 5px;padding:8px 12px;flex:1;background:#f8faff;display:flex;flex-direction:column;justify-content:flex-start;">
     <div style="font-size:9.5px;font-weight:700;margin-bottom:5px;color:#1e293b;">▶ 導入のポイント</div>
     <ul style="padding-left:14px;list-style:disc;font-size:9px;color:#475569;line-height:1.85;">
       <li>4ヶ月目以降も従量割引（50円）が継続するため、固定費込みでも通常より安くなります。</li>
@@ -934,7 +934,7 @@ function t1Print() {
 #w{width:190mm;min-height:277mm;max-height:277mm;background:white;overflow:hidden;font-family:'Noto Sans JP',sans-serif;font-size:10px;color:#1e293b;line-height:1.4;display:flex;flex-direction:column;box-sizing:border-box;box-shadow:0 4px 32px rgba(0,0,0,.15);}
 #w table{font-size:9px;}
 #w ul{font-size:8.5px;}
-@media print{body{background:none;padding:0;}#w{box-shadow:none;max-height:none;min-height:0;width:100%;}}</style>
+@media print{body{background:none;padding:0;}#w{box-shadow:none;max-height:none;min-height:297mm;width:100%;height:297mm;}#t1-point-box{flex:1 1 auto !important;}}</style>
 </head><body><div id="w">${html}</div>
 <script>window.addEventListener('load',()=>setTimeout(()=>window.print(),600));<\/script>
 </body></html>`);
@@ -1319,7 +1319,7 @@ function doPrint() {
 #w{width:190mm;min-height:277mm;max-height:277mm;background:white;overflow:hidden;font-family:'Noto Sans JP',sans-serif;font-size:10px;color:#1e293b;line-height:1.4;display:flex;flex-direction:column;box-sizing:border-box;box-shadow:0 4px 32px rgba(0,0,0,.15);}
 #w table{font-size:9px;}
 #w ul{font-size:8.5px;}
-@media print{body{background:none;padding:0;}#w{box-shadow:none;max-height:none;min-height:0;width:100%;}}</style>
+@media print{body{background:none;padding:0;}#w{box-shadow:none;max-height:none;min-height:297mm;width:100%;height:297mm;}#t1-point-box{flex:1 1 auto !important;}}</style>
 </head><body><div id="w">${html}</div>
 <script>window.addEventListener('load',()=>setTimeout(()=>window.print(),600));<\/script>
 </body></html>`);
